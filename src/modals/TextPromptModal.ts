@@ -16,7 +16,7 @@ export class TextPromptModal extends Modal {
 	constructor(
 		app: App,
 		private opts: TextPromptOptions,
-		private onSubmit: (value: string) => void,
+		private onSubmit: (value: string) => void | Promise<void>,
 		private onCancel?: () => void
 	) {
 		super(app);
@@ -32,7 +32,7 @@ export class TextPromptModal extends Modal {
 			if (!v) return;
 			this.submitted = true;
 			this.close();
-			this.onSubmit(v);
+			void this.onSubmit(v);
 		};
 
 		if (this.opts.multiline) {

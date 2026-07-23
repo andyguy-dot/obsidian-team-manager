@@ -5,7 +5,6 @@ import {
 	ActionItem,
 	Health,
 	Meeting,
-	PerformanceNote,
 	Person,
 	Project,
 	Relation,
@@ -175,7 +174,7 @@ export class TeamStore {
 
 	private frontmatterType(file: TFile): string | undefined {
 		const fm = this.app.metadataCache.getFileCache(file)?.frontmatter;
-		const t = fm?.type;
+		const t: unknown = fm?.type;
 		return t ? String(t).toLowerCase() : undefined;
 	}
 

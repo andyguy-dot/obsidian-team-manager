@@ -172,7 +172,7 @@ export class PersonDetailView extends ItemView {
 			text: "⚡ Capture",
 			cls: "tm-btn-primary tm-topbar-capture",
 		});
-		capture.onclick = () => runQuickCaptureFor(this.plugin, person);
+		capture.onclick = () => void runQuickCaptureFor(this.plugin, person);
 	}
 
 	/** Horizontal strip of every person, to jump the hub between them. */
@@ -260,7 +260,7 @@ export class PersonDetailView extends ItemView {
 		});
 		openNote.onclick = (e) => {
 			e.preventDefault();
-			this.app.workspace.getLeaf(false).openFile(person.file);
+			void this.app.workspace.getLeaf(false).openFile(person.file);
 		};
 	}
 
@@ -579,7 +579,7 @@ export class PersonDetailView extends ItemView {
 			});
 			link.onclick = (e) => {
 				e.preventDefault();
-				this.app.workspace.getLeaf(false).openFile(project.file);
+				void this.app.workspace.getLeaf(false).openFile(project.file);
 			};
 			renderStatusPill(this.plugin, row, project);
 			// Full width buys room for the actual last update, not just "5d".
@@ -644,7 +644,7 @@ export class PersonDetailView extends ItemView {
 			});
 			open.onclick = (e) => {
 				e.preventDefault();
-				this.app.workspace.getLeaf(false).openFile(latest.file);
+				void this.app.workspace.getLeaf(false).openFile(latest.file);
 			};
 		}
 
@@ -723,7 +723,7 @@ export class PersonDetailView extends ItemView {
 			const link = row.createEl("a", { text: "Open →", cls: "tm-ctx-link" });
 			link.onclick = (e) => {
 				e.preventDefault();
-				this.app.workspace.getLeaf(false).openFile(perf.file);
+				void this.app.workspace.getLeaf(false).openFile(perf.file);
 			};
 		}
 	}

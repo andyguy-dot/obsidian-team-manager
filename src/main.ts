@@ -81,7 +81,7 @@ export default class TeamManagerPlugin extends Plugin {
 		registerProjectBlock(this);
 
 		this.addRibbonIcon("users", "Open team dashboard", () =>
-			this.activateDashboard()
+			void this.activateDashboard()
 		);
 
 		this.addCommand({
@@ -171,7 +171,7 @@ export default class TeamManagerPlugin extends Plugin {
 
 	/** Returns true when there was no data.json yet, i.e. a fresh install. */
 	async loadSettings(): Promise<boolean> {
-		const saved = await this.loadData();
+		const saved = (await this.loadData()) as Partial<TeamManagerSettings> | null;
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, saved);
 		return saved == null;
 	}
@@ -209,12 +209,12 @@ export default class TeamManagerPlugin extends Plugin {
 		const existing =
 			this.app.workspace.getLeavesOfType(VIEW_TYPE_DASHBOARD)[0];
 		if (existing) {
-			this.app.workspace.revealLeaf(existing);
+			await this.app.workspace.revealLeaf(existing);
 			return;
 		}
 		const leaf = this.app.workspace.getLeaf(true);
 		await leaf.setViewState({ type: VIEW_TYPE_DASHBOARD, active: true });
-		this.app.workspace.revealLeaf(leaf);
+		await this.app.workspace.revealLeaf(leaf);
 	}
 
 	/** Open (or reuse) the person hub tab for the given person note. */
@@ -226,7 +226,7 @@ export default class TeamManagerPlugin extends Plugin {
 			active: true,
 			state: { personPath: personFile.path },
 		});
-		this.app.workspace.revealLeaf(leaf);
+		await this.app.workspace.revealLeaf(leaf);
 	}
 
 	private async ensureContextLeaf(): Promise<ContextView | null> {

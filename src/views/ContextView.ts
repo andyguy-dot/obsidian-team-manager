@@ -135,12 +135,12 @@ export class ContextView extends ItemView {
 			);
 		};
 		paint();
-		eye.onclick = async () => {
+		eye.onclick = () => {
 			this.plugin.settings.discreetMode =
 				!this.plugin.settings.discreetMode;
-			await this.plugin.saveSettings();
+			void this.plugin.saveSettings();
 			this.plugin.refreshViews();
-			await this.render();
+			void this.render();
 		};
 
 		const sub = [person.role, person.team].filter(Boolean).join(" · ");
@@ -151,7 +151,7 @@ export class ContextView extends ItemView {
 		});
 		open.onclick = (e) => {
 			e.preventDefault();
-			this.plugin.openPerson(person.file);
+			void this.plugin.openPerson(person.file);
 		};
 	}
 
@@ -218,7 +218,7 @@ export class ContextView extends ItemView {
 		open.onclick = (e) => {
 			e.preventDefault();
 			e.stopPropagation();
-			this.app.workspace.getLeaf(false).openFile(project.file);
+			void this.app.workspace.getLeaf(false).openFile(project.file);
 		};
 		const logBtn = summary.createEl("button", {
 			text: "＋",
@@ -345,7 +345,7 @@ export class ContextView extends ItemView {
 		});
 		open.onclick = (e) => {
 			e.preventDefault();
-			this.app.workspace.getLeaf(false).openFile(project.file);
+			void this.app.workspace.getLeaf(false).openFile(project.file);
 		};
 
 		this.renderProjectPeople(root, project);
@@ -417,14 +417,15 @@ export class ContextView extends ItemView {
 		for (const item of items) {
 			const li = list.createEl("li", { cls: "tm-ctx-item" });
 			const cb = li.createEl("input", { type: "checkbox" });
-			cb.onchange = async () => {
-				await toggleTaskLine(this.app, item.file, item.line);
-				await this.render();
+			cb.onchange = () => {
+				void toggleTaskLine(this.app, item.file, item.line).then(() =>
+					this.render()
+				);
 			};
 			const label = li.createEl("span", { text: item.text });
 			label.onclick = (e) => {
 				e.preventDefault();
-				this.app.workspace.getLeaf(false).openFile(item.file);
+				void this.app.workspace.getLeaf(false).openFile(item.file);
 			};
 			if (item.meetingDate) {
 				li.createEl("span", {

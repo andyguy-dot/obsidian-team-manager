@@ -49,7 +49,7 @@ export function wirePersonMenu(
 				.setTitle("Open note")
 				.setIcon("file-text")
 				.onClick(() => {
-					plugin.app.workspace.getLeaf(false).openFile(person.file);
+					void plugin.app.workspace.getLeaf(false).openFile(person.file);
 				})
 		);
 		menu.addSeparator();
@@ -81,7 +81,9 @@ export async function setPersonRelation(
 ): Promise<void> {
 	if (person.relation === relation) return;
 	try {
-		await plugin.app.fileManager.processFrontMatter(person.file, (fm) => {
+		await plugin.app.fileManager.processFrontMatter(
+			person.file,
+			(fm: { relation?: unknown }) => {
 			fm.relation = relation;
 		});
 	} catch (err) {

@@ -1,6 +1,6 @@
 {
   "name": "team-manager",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Manage your team from Obsidian: people, 1:1s, projects, performance notes and a universal quick capture.",
   "main": "main.js",
   "scripts": {
@@ -12,7 +12,6 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.11.0",
-    "builtin-modules": "^3.3.0",
     "esbuild": "0.20.0",
     "obsidian": "latest",
     "tslib": "2.6.2",

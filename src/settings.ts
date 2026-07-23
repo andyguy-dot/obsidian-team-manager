@@ -222,7 +222,6 @@ export class TeamManagerSettingTab extends PluginSettingTab {
 				sl
 					.setLimits(1, 90, 1)
 					.setValue(s.staleDays)
-					.setDynamicTooltip()
 					.onChange(async (v) => {
 						s.staleDays = v;
 						await this.save();
@@ -238,7 +237,6 @@ export class TeamManagerSettingTab extends PluginSettingTab {
 				sl
 					.setLimits(30, 365, 15)
 					.setValue(s.reviewIntervalDays)
-					.setDynamicTooltip()
 					.onChange(async (v) => {
 						s.reviewIntervalDays = v;
 						await this.save();

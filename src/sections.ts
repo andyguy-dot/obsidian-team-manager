@@ -33,7 +33,6 @@ function findSection(lines: string[], heading: string): Section | null {
 }
 
 const BULLET_RE = /^\s*[-*+]\s+(.*)$/;
-const DATED_BULLET_RE = /^\s*[-*+]\s+(\d{4}-\d{2}-\d{2})/;
 
 function bulletsIn(lines: string[], sec: Section): string[] {
 	const items: string[] = [];

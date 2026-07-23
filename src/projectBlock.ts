@@ -28,11 +28,11 @@ class ProjectBlock extends MarkdownRenderChild {
 		super(containerEl);
 	}
 
-	async onload(): Promise<void> {
+	onload(): void {
 		this.registerEvent(
 			this.plugin.app.metadataCache.on("changed", () => this.queueRender())
 		);
-		await this.render();
+		void this.render();
 	}
 
 	async render(): Promise<void> {

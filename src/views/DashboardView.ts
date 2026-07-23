@@ -157,14 +157,14 @@ export class DashboardView extends ItemView {
 		const actions = bar.createDiv({ cls: "tm-toolbar-actions" });
 		const capture = actions.createEl("button", { text: "⚡ Capture" });
 		capture.addClass("tm-btn-primary");
-		capture.onclick = () => runQuickCapture(this.plugin);
+		capture.onclick = () => void runQuickCapture(this.plugin);
 		actions.createEl("button", { text: "＋ Person" }).onclick = () =>
 			this.plugin.commandNewPerson();
 		actions.createEl("button", { text: "＋ 1:1" }).onclick = () =>
 			this.plugin.commandNewMeeting();
 		const refresh = actions.createEl("button", { text: "↻" });
 		refresh.setAttr("aria-label", "Refresh");
-		refresh.onclick = () => this.render();
+		refresh.onclick = () => void this.render();
 	}
 
 	private renderMetrics(root: HTMLElement): void {
@@ -397,7 +397,7 @@ export class DashboardView extends ItemView {
 		const card = grid.createDiv({
 			cls: `tm-card tm-health-${health}`,
 		});
-		card.onclick = () => this.plugin.openPerson(p.file);
+		card.onclick = () => void this.plugin.openPerson(p.file);
 		wirePersonMenu(this.plugin, card, p);
 
 		const noteIcon = card.createEl("span", {
@@ -407,7 +407,7 @@ export class DashboardView extends ItemView {
 		noteIcon.setAttr("aria-label", "Open note");
 		noteIcon.onclick = (e) => {
 			e.stopPropagation();
-			this.app.workspace.getLeaf(false).openFile(p.file);
+			void this.app.workspace.getLeaf(false).openFile(p.file);
 		};
 
 		const top = card.createDiv({ cls: "tm-card-top" });
@@ -505,7 +505,7 @@ export class DashboardView extends ItemView {
 				who.onclick = (e) => {
 					e.preventDefault();
 					e.stopPropagation();
-					this.plugin.openPerson(person.file);
+					void this.plugin.openPerson(person.file);
 				};
 				const sub = [person.role, person.team]
 					.filter(Boolean)
@@ -662,7 +662,9 @@ export class DashboardView extends ItemView {
 		if (wrap) this.renderContent(wrap);
 
 		try {
-			await this.app.fileManager.processFrontMatter(project.file, (fm) => {
+			await this.app.fileManager.processFrontMatter(
+			project.file,
+			(fm: { status?: unknown; people?: unknown }) => {
 				if (statusChanged) fm.status = status;
 				if (peopleChanged) {
 					fm.people = next.map((p) => {
@@ -762,7 +764,7 @@ export class DashboardView extends ItemView {
 				const pf = lane.person.file;
 				nameLink.onclick = (e) => {
 					e.preventDefault();
-					this.plugin.openPerson(pf);
+					void this.plugin.openPerson(pf);
 				};
 			} else {
 				head.createEl("span", {
@@ -847,10 +849,14 @@ export class DashboardView extends ItemView {
 			if (!raw) return;
 			let payload: { path: string; from: string | null };
 			try {
-				payload = JSON.parse(raw);
+				payload = JSON.parse(raw) as {
+					path: string;
+					from: string | null;
+				};
 			} catch {
 				return;
 			}
+			if (typeof payload.path !== "string") return;
 			const project = this.plugin.store.getProjectByPath(payload.path);
 			if (!project) return;
 			void this.dropProject(
@@ -871,7 +877,7 @@ export class DashboardView extends ItemView {
 		const active = this.isActiveEff(project);
 		const card = cell.createDiv({ cls: "tm-board-card" });
 		card.onclick = () => {
-			this.app.workspace.getLeaf(false).openFile(project.file);
+			void this.app.workspace.getLeaf(false).openFile(project.file);
 		};
 		this.wireProjectMenu(card, project);
 
@@ -943,7 +949,7 @@ export class DashboardView extends ItemView {
 		});
 		nameLink.onclick = (e) => {
 			e.preventDefault();
-			this.app.workspace.getLeaf(false).openFile(project.file);
+			void this.app.workspace.getLeaf(false).openFile(project.file);
 		};
 		if (project.priority) {
 			titleRow.createEl("span", { text: project.priority, cls: "tm-pill" });
@@ -962,7 +968,7 @@ export class DashboardView extends ItemView {
 				});
 				link.onclick = (e) => {
 					e.preventDefault();
-					this.plugin.openPerson(p.file);
+					void this.plugin.openPerson(p.file);
 				};
 			});
 		}
@@ -1029,9 +1035,9 @@ export class DashboardView extends ItemView {
 		label.onclick = (e) => {
 			e.preventDefault();
 			if (group.kind === "person") {
-				this.plugin.openPerson(group.file);
+				void this.plugin.openPerson(group.file);
 			} else {
-				this.app.workspace.getLeaf(false).openFile(group.file);
+				void this.app.workspace.getLeaf(false).openFile(group.file);
 			}
 		};
 
@@ -1039,11 +1045,11 @@ export class DashboardView extends ItemView {
 		for (const item of group.items) {
 			const li = list.createEl("li", { cls: "tm-ctx-item" });
 			const cb = li.createEl("input", { type: "checkbox" });
-			cb.onchange = () => this.toggleItem(item);
+			cb.onchange = () => void this.toggleItem(item);
 			const text = li.createEl("span", { text: item.text });
 			text.onclick = (e) => {
 				e.preventDefault();
-				this.app.workspace.getLeaf(false).openFile(item.file);
+				void this.app.workspace.getLeaf(false).openFile(item.file);
 			};
 			if (item.meetingDate) {
 				li.createEl("span", {

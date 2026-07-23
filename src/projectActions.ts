@@ -12,7 +12,9 @@ export async function setProjectStatus(
 ): Promise<void> {
 	if (project.status === status) return;
 	try {
-		await plugin.app.fileManager.processFrontMatter(project.file, (fm) => {
+		await plugin.app.fileManager.processFrontMatter(
+			project.file,
+			(fm: { status?: unknown; people?: unknown }) => {
 			fm.status = status;
 		});
 	} catch (err) {

@@ -36,7 +36,7 @@ export function renderMeetingRow(opts: MeetingRowOptions): void {
 	open.onclick = (e) => {
 		e.preventDefault();
 		e.stopPropagation(); // don't toggle the <details>
-		app.workspace.getLeaf(false).openFile(file);
+		void app.workspace.getLeaf(false).openFile(file);
 	};
 
 	// On the summary only: inside the expanded body, right-click belongs to

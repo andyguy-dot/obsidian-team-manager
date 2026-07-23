@@ -95,7 +95,9 @@ export class DeletePersonModal extends Modal {
 		try {
 			// Unlink from projects first: a shared project must outlive them.
 			for (const project of person.projects) {
-				await fm.processFrontMatter(project.file, (front) => {
+				await fm.processFrontMatter(
+					project.file,
+					(front: { people?: unknown }) => {
 					const raw = Array.isArray(front.people)
 						? front.people
 						: front.people != null

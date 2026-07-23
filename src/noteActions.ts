@@ -28,7 +28,7 @@ export function addNoteMenuItems(
 			.setTitle("Open note")
 			.setIcon("file-text")
 			.onClick(() => {
-				plugin.app.workspace.getLeaf(false).openFile(file);
+				void plugin.app.workspace.getLeaf(false).openFile(file);
 			})
 	);
 	menu.addSeparator();

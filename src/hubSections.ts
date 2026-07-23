@@ -44,10 +44,10 @@ export function renderHubActions(
 		b.onclick = onClick;
 		return b;
 	};
-	btn("⚡ Capture", () => runQuickCaptureFor(plugin, person)).addClass(
+	btn("⚡ Capture", () => void runQuickCaptureFor(plugin, person)).addClass(
 		"tm-btn-primary"
 	);
-	btn("＋ 1:1", () => plugin.newMeetingFor(person.file));
+	btn("＋ 1:1", () => void plugin.newMeetingFor(person.file));
 	btn("＋ Performance", () => plugin.newPerformanceFor(person.file));
 	return actions;
 }
@@ -114,14 +114,15 @@ export function renderActionItem(
 ): void {
 	const li = list.createEl("li", { cls: "tm-ctx-item" });
 	const cb = li.createEl("input", { type: "checkbox" });
-	cb.onchange = async () => {
-		await toggleTaskLine(ctx.app, item.file, item.line);
-		ctx.rerender();
+	cb.onchange = () => {
+		void toggleTaskLine(ctx.app, item.file, item.line).then(() =>
+			ctx.rerender()
+		);
 	};
 	const label = li.createEl("span", { text: item.text });
 	label.onclick = (e) => {
 		e.preventDefault();
-		ctx.app.workspace.getLeaf(false).openFile(item.file);
+		void ctx.app.workspace.getLeaf(false).openFile(item.file);
 	};
 	if (item.meetingDate) {
 		li.createEl("span", { text: item.meetingDate, cls: "tm-ctx-date" });
@@ -171,7 +172,7 @@ function renderHubProjectRow(
 	});
 	nameLink.onclick = (e) => {
 		e.preventDefault();
-		app.workspace.getLeaf(false).openFile(project.file);
+		void app.workspace.getLeaf(false).openFile(project.file);
 	};
 
 	renderStatusPill(plugin, row, project);
