@@ -1,0 +1,15 @@
+# Build output — attached to GitHub Releases, never committed
+main.js
+*.js.map
+
+# Dependencies
+node_modules/
+
+# Obsidian plugin runtime data (local settings, per-vault)
+data.json
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

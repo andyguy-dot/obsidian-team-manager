@@ -1,0 +1,1840 @@
+/* ============================================================
+   Team Manager — design system
+   Apple-inspired surfaces, one accent, motion that conveys state.
+   Theme-aware: everything rides Obsidian variables so it adapts
+   to light / dark and the user's theme.
+   ============================================================ */
+
+.tm-dashboard,
+.tm-person,
+.tm-context,
+.tm-hub-block,
+.tm-capture-modal,
+.tm-dest-modal {
+	/* radii — generous, layered */
+	--tm-r-xs: 6px;
+	--tm-r-sm: 8px;
+	--tm-r-md: 11px;
+	--tm-r-lg: 15px;
+	--tm-r-pill: 999px;
+
+	/* motion — iOS ease-out, quick enough to stay in flow */
+	--tm-ease: cubic-bezier(0.32, 0.72, 0, 1);
+	--tm-dur: 0.19s;
+	--tm-dur-fast: 0.12s;
+
+	/* hairline that reads softer than the default 1px border */
+	--tm-hairline: color-mix(in srgb, var(--background-modifier-border) 70%, transparent);
+
+	/* iOS segmented-control track */
+	--tm-track: color-mix(in srgb, var(--color-base-100, var(--text-normal)) 8%, transparent);
+
+	/* state tints (light overlay works in both themes) */
+	--tm-tint-ok: color-mix(in srgb, var(--color-green, #34c759) 15%, transparent);
+	--tm-tint-warn: color-mix(in srgb, var(--color-yellow, #ff9500) 17%, transparent);
+	--tm-tint-over: color-mix(in srgb, var(--color-red, #ff3b30) 15%, transparent);
+	--tm-tint-info: color-mix(in srgb, var(--color-blue, #007aff) 15%, transparent);
+
+	/* state ink — darkened for contrast on light tints */
+	--tm-ink-ok: color-mix(in oklab, var(--color-green, #34c759), #000 24%);
+	--tm-ink-warn: color-mix(in oklab, var(--color-yellow, #ff9500), #000 36%);
+	--tm-ink-over: color-mix(in oklab, var(--color-red, #ff3b30), #000 14%);
+	--tm-ink-info: color-mix(in oklab, var(--color-blue, #007aff), #000 10%);
+
+	font-family: var(--font-interface);
+}
+
+/* On dark themes the tints are dark, so the ink brightens instead. */
+.theme-dark .tm-dashboard,
+.theme-dark .tm-person,
+.theme-dark .tm-context,
+.theme-dark .tm-hub-block,
+.theme-dark .tm-capture-modal,
+.theme-dark .tm-dest-modal {
+	--tm-track: color-mix(in srgb, #fff 9%, transparent);
+	--tm-ink-ok: color-mix(in oklab, var(--color-green, #30d158), #fff 6%);
+	--tm-ink-warn: color-mix(in oklab, var(--color-yellow, #ffd60a), #fff 4%);
+	--tm-ink-over: color-mix(in oklab, var(--color-red, #ff453a), #fff 8%);
+	--tm-ink-info: color-mix(in oklab, var(--color-blue, #0a84ff), #fff 10%);
+}
+
+/* ---- Shared primitives -------------------------------------------------- */
+
+.tm-muted {
+	color: var(--text-muted);
+}
+
+.tm-days-overdue {
+	color: var(--tm-ink-over);
+}
+
+/* Focus: a soft accent ring on anything keyboard-reachable. */
+.tm-dashboard :focus-visible,
+.tm-person :focus-visible,
+.tm-context :focus-visible,
+.tm-hub-block :focus-visible,
+.tm-capture-modal :focus-visible,
+.tm-dest-modal :focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 2px var(--background-primary),
+		0 0 0 4px color-mix(in srgb, var(--interactive-accent) 55%, transparent);
+	border-radius: var(--tm-r-sm);
+}
+
+/* Buttons: quiet secondary by default, one accent primary. */
+.tm-toolbar-actions button,
+.tm-person-actions button,
+.tm-inline-add,
+.tm-proj-new,
+.tm-nudge button,
+.tm-cap-footer button,
+.tm-del-actions button,
+.tm-empty button {
+	font-family: inherit;
+	border-radius: var(--tm-r-sm);
+	cursor: pointer;
+	transition: transform var(--tm-dur-fast) var(--tm-ease),
+		background var(--tm-dur-fast) var(--tm-ease),
+		box-shadow var(--tm-dur-fast) var(--tm-ease);
+}
+
+.tm-toolbar-actions button:active,
+.tm-person-actions button:active,
+.tm-inline-add:active,
+.tm-cap-footer button:active,
+.tm-del-actions button:active {
+	transform: scale(0.96);
+}
+
+.tm-btn-primary {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	font-weight: 600;
+	box-shadow: var(--shadow-s, 0 1px 2px rgba(0, 0, 0, 0.12));
+}
+
+.tm-btn-primary:hover {
+	background: var(--interactive-accent-hover);
+}
+
+/* Inputs — unified rounded fields. */
+.tm-search,
+.tm-select,
+.tm-cap-input,
+.tm-cap-select,
+.tm-cap-textarea,
+.tm-prompt-textarea {
+	border-radius: var(--tm-r-sm);
+}
+
+/* Segmented control (tabs, mode switch, board toggle). iOS style: a soft
+   track with a raised thumb under the active segment. */
+.tm-tabs,
+.tm-seg {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	padding: 3px;
+	background: var(--tm-track);
+	border-radius: var(--tm-r-md);
+	border: none;
+	overflow: visible;
+}
+
+.tm-tab,
+.tm-seg-btn {
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	border-radius: calc(var(--tm-r-md) - 3px);
+	padding: 5px 14px;
+	margin: 0;
+	cursor: pointer;
+	color: var(--text-muted);
+	font-size: 0.85em;
+	font-weight: 500;
+	white-space: nowrap;
+	transition: color var(--tm-dur-fast) var(--tm-ease),
+		background var(--tm-dur-fast) var(--tm-ease);
+}
+
+.tm-tab:hover,
+.tm-seg-btn:hover {
+	color: var(--text-normal);
+}
+
+.tm-tab.is-active,
+.tm-seg-btn.is-active {
+	color: var(--text-normal);
+	font-weight: 600;
+	background: var(--background-primary);
+	box-shadow: var(--shadow-s, 0 1px 2px rgba(0, 0, 0, 0.14));
+}
+
+/* Pills & chips — full-radius, tabular numerals. */
+.tm-pill,
+.tm-chip,
+.tm-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 0.72em;
+	font-weight: 500;
+	padding: 2px 9px;
+	border-radius: var(--tm-r-pill);
+	background: var(--tm-track);
+	color: var(--text-muted);
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+}
+
+.tm-status {
+	margin-left: 6px;
+}
+
+.tm-pill-relation {
+	background: var(--tm-tint-info);
+	color: var(--tm-ink-info);
+}
+
+.tm-chip-warn {
+	background: var(--tm-tint-over);
+	color: var(--tm-ink-over);
+}
+
+.tm-chip-days.tm-chip-ok {
+	background: var(--tm-tint-ok);
+	color: var(--tm-ink-ok);
+}
+
+.tm-chip-days.tm-chip-warn {
+	background: var(--tm-tint-warn);
+	color: var(--tm-ink-warn);
+}
+
+.tm-chip-days.tm-chip-overdue,
+.tm-chip-days.tm-chip-never {
+	background: var(--tm-tint-over);
+	color: var(--tm-ink-over);
+}
+
+/* Status pill acting as a control (opens the status menu). */
+.tm-pill-btn {
+	border: none;
+	box-shadow: none;
+	cursor: pointer;
+	font-family: inherit;
+	line-height: 1.4;
+	height: auto;
+	transition: filter var(--tm-dur-fast) var(--tm-ease);
+}
+
+.tm-pill-btn:hover {
+	filter: brightness(1.06);
+}
+
+.tm-pill-status-backlog {
+	background: var(--tm-track);
+	color: var(--text-muted);
+}
+
+.tm-pill-status-in-progress,
+.tm-pill-status-active {
+	background: var(--tm-tint-ok);
+	color: var(--tm-ink-ok);
+}
+
+.tm-pill-status-paused {
+	background: var(--tm-tint-warn);
+	color: var(--tm-ink-warn);
+}
+
+.tm-pill-status-done {
+	background: var(--tm-track);
+	color: var(--text-faint);
+}
+
+.tm-pill-status-cancelled {
+	background: var(--tm-tint-over);
+	color: var(--text-faint);
+	text-decoration: line-through;
+}
+
+/* Avatar — soft gradient of the deterministic hue, optional health ring. */
+.tm-avatar {
+	flex: 0 0 auto;
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+	font-size: 0.92em;
+	letter-spacing: 0.01em;
+	background: linear-gradient(
+		155deg,
+		hsl(var(--tm-hue, 210) 66% 90%),
+		hsl(var(--tm-hue, 210) 58% 79%)
+	);
+	color: hsl(var(--tm-hue, 210) 48% 32%);
+	box-shadow: inset 0 1px 1px hsl(var(--tm-hue, 210) 90% 97% / 0.7),
+		0 0 0 2px var(--background-secondary),
+		0 0 0 3.5px var(--tm-health, transparent);
+}
+
+.theme-dark .tm-avatar {
+	background: linear-gradient(
+		155deg,
+		hsl(var(--tm-hue, 210) 44% 34%),
+		hsl(var(--tm-hue, 210) 48% 25%)
+	);
+	color: hsl(var(--tm-hue, 210) 72% 84%);
+	box-shadow: inset 0 1px 1px hsl(var(--tm-hue, 210) 60% 60% / 0.25),
+		0 0 0 2px var(--background-secondary),
+		0 0 0 3.5px var(--tm-health, transparent);
+}
+
+.tm-health-ok {
+	--tm-health: var(--color-green, #34c759);
+}
+.tm-health-warn {
+	--tm-health: var(--color-yellow, #ff9500);
+}
+.tm-health-overdue,
+.tm-health-never {
+	--tm-health: var(--color-red, #ff3b30);
+}
+
+.tm-avatar-sm {
+	width: 26px;
+	height: 26px;
+	font-size: 0.62em;
+	box-shadow: inset 0 1px 1px hsl(var(--tm-hue, 210) 90% 97% / 0.6);
+}
+
+.theme-dark .tm-avatar-sm {
+	box-shadow: inset 0 1px 1px hsl(var(--tm-hue, 210) 60% 60% / 0.2);
+}
+
+/* ---- Dashboard ---------------------------------------------------------- */
+
+.tm-dashboard {
+	padding: 0 20px 28px;
+	overflow-y: auto;
+}
+
+/* Sticky toolbar with a real translucent material over scrolling content. */
+.tm-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	position: sticky;
+	top: 0;
+	z-index: 10;
+	padding: 14px 0 11px;
+	margin-bottom: 4px;
+	background: color-mix(in srgb, var(--background-primary) 78%, transparent);
+	backdrop-filter: blur(20px) saturate(1.7);
+	-webkit-backdrop-filter: blur(20px) saturate(1.7);
+	border-bottom: 1px solid var(--tm-hairline);
+}
+
+.tm-title {
+	margin: 0;
+	font-size: 1.35em;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+}
+
+.tm-toolbar-actions {
+	display: flex;
+	gap: 6px;
+}
+
+/* Metrics — light, borderless tiles; numbers lead. */
+.tm-metrics {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin: 14px 0 16px;
+}
+
+.tm-metric {
+	flex: 1 1 auto;
+	min-width: 92px;
+	background: var(--background-secondary);
+	border-radius: var(--tm-r-md);
+	padding: 11px 14px;
+}
+
+.tm-metric-value {
+	font-size: 1.55em;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	font-variant-numeric: tabular-nums;
+	line-height: 1.1;
+}
+
+.tm-metric-label {
+	font-size: 0.75em;
+	color: var(--text-muted);
+	margin-top: 2px;
+}
+
+/* Filters */
+.tm-filters {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	flex-wrap: wrap;
+	margin-bottom: 16px;
+}
+
+.tm-search {
+	flex: 1 1 200px;
+	min-width: 140px;
+}
+
+.tm-check {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	color: var(--text-muted);
+	font-size: 0.85em;
+	white-space: nowrap;
+}
+
+.tm-dash-tabs {
+	margin-bottom: 16px;
+}
+
+/* Relation groups */
+.tm-group {
+	margin-bottom: 26px;
+}
+
+.tm-group-title {
+	font-size: 0.72em;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--text-muted);
+	margin: 4px 0 10px;
+}
+
+/* Person cards — elevated, soft, lift on hover. */
+.tm-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+	gap: 12px;
+}
+
+.tm-card {
+	position: relative;
+	background: var(--background-secondary);
+	border: 1px solid var(--tm-hairline);
+	border-radius: var(--tm-r-lg);
+	padding: 16px;
+	cursor: pointer;
+	box-shadow: var(--shadow-s, 0 1px 2px rgba(0, 0, 0, 0.06));
+	transition: transform var(--tm-dur) var(--tm-ease),
+		box-shadow var(--tm-dur) var(--tm-ease),
+		border-color var(--tm-dur) var(--tm-ease);
+}
+
+.tm-card:hover {
+	transform: translateY(-2px);
+	box-shadow: var(--shadow-l, 0 8px 24px rgba(0, 0, 0, 0.12));
+	border-color: color-mix(in srgb, var(--background-modifier-border) 100%, transparent);
+}
+
+.tm-card:active {
+	transform: translateY(0) scale(0.995);
+}
+
+.tm-card-note {
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	font-size: 0.85em;
+	opacity: 0;
+	transition: opacity var(--tm-dur-fast) var(--tm-ease);
+}
+
+.tm-card:hover .tm-card-note {
+	opacity: 0.5;
+}
+
+.tm-card-note:hover {
+	opacity: 1 !important;
+}
+
+.tm-card-top {
+	display: flex;
+	align-items: center;
+	gap: 13px;
+	min-width: 0;
+}
+
+.tm-card-id {
+	min-width: 0;
+}
+
+.tm-card-name {
+	font-weight: 600;
+	font-size: 1.02em;
+	letter-spacing: -0.01em;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.tm-card-sub {
+	font-size: 0.82em;
+	margin-top: 1px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.tm-chips {
+	display: flex;
+	gap: 6px;
+	flex-wrap: wrap;
+	margin-top: 14px;
+}
+
+/* Empty states — inviting, centered. */
+.tm-empty {
+	color: var(--text-muted);
+	padding: 40px 8px;
+	text-align: center;
+	font-size: 0.92em;
+}
+
+.tm-empty button {
+	margin-top: 12px;
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	font-weight: 600;
+}
+
+/* ---- Meeting rows (dashboard 1:1s, hub, context) ------------------------ */
+
+.tm-ctx-meeting {
+	border-top: 1px solid var(--tm-hairline);
+}
+
+.tm-ctx-meeting summary {
+	display: flex;
+	align-items: baseline;
+	gap: 9px;
+	cursor: pointer;
+	padding: 9px 6px 9px 2px;
+	min-width: 0;
+	font-variant-numeric: tabular-nums;
+	list-style: none;
+	border-radius: var(--tm-r-sm);
+	transition: background var(--tm-dur-fast) var(--tm-ease);
+}
+
+.tm-ctx-meeting summary:hover {
+	background: var(--background-modifier-hover);
+}
+
+.tm-ctx-meeting summary::-webkit-details-marker {
+	display: none;
+}
+
+.tm-ctx-meeting summary::before {
+	content: "";
+	flex: 0 0 auto;
+	align-self: center;
+	width: 6px;
+	height: 6px;
+	border-right: 1.5px solid var(--text-faint);
+	border-bottom: 1.5px solid var(--text-faint);
+	transform: rotate(-45deg);
+	transition: transform var(--tm-dur) var(--tm-ease),
+		border-color var(--tm-dur-fast) var(--tm-ease);
+	margin-right: 2px;
+}
+
+.tm-ctx-meeting[open] > summary::before {
+	transform: rotate(45deg);
+}
+
+.tm-ctx-meeting summary:hover::before {
+	border-color: var(--text-muted);
+}
+
+.tm-meet-date {
+	font-variant-numeric: tabular-nums;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.tm-meet-person {
+	cursor: pointer;
+	font-weight: 500;
+}
+
+.tm-meet-person:hover {
+	color: var(--text-accent);
+}
+
+.tm-meet-sub {
+	font-size: 0.8em;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.tm-meet-open {
+	margin-left: auto;
+	cursor: pointer;
+	font-size: 0.8em;
+	color: var(--text-faint);
+	white-space: nowrap;
+	transition: color var(--tm-dur-fast) var(--tm-ease);
+}
+
+.tm-meet-open:hover {
+	color: var(--text-accent);
+}
+
+.tm-ctx-meeting-body {
+	background: var(--background-primary);
+	border: 1px solid var(--tm-hairline);
+	border-radius: var(--tm-r-md);
+	padding: 10px 14px;
+	margin: 2px 0 10px 16px;
+	font-size: 0.9em;
+}
+
+.tm-ctx-meeting-body > :first-child {
+	margin-top: 0;
+}
+.tm-ctx-meeting-body > :last-child {
+	margin-bottom: 0;
+}
+
+.tm-ctx-meeting-body h1,
+.tm-ctx-meeting-body h2,
+.tm-ctx-meeting-body h3,
+.tm-ctx-meeting-body h4,
+.tm-ctx-meeting-body h5,
+.tm-ctx-meeting-body h6 {
+	font-size: 0.72em;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--text-muted);
+	margin: 12px 0 4px;
+	padding: 0;
+	border: none;
+	line-height: 1.3;
+}
+
+.tm-ctx-meeting-body p {
+	margin: 4px 0;
+	line-height: 1.55;
+}
+
+.tm-ctx-meeting-body ul,
+.tm-ctx-meeting-body ol {
+	margin: 4px 0;
+	padding-left: 22px;
+}
+
+.tm-ctx-meeting-body li {
+	margin: 2px 0;
+}
+
+.tm-ctx-meeting-body .task-list-item-checkbox {
+	pointer-events: none;
+}
+
+/* ---- Projects: list rows ------------------------------------------------ */
+
+.tm-proj-new {
+	margin: 0 0 12px;
+}
+
+.tm-proj-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 9px 0;
+	border-top: 1px solid var(--tm-hairline);
+}
+
+.tm-proj-dot {
+	flex: 0 0 auto;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--text-faint);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--tm-dot, var(--text-faint)) 18%, transparent);
+}
+
+.tm-stale-ok {
+	background: var(--color-green, #34c759);
+	--tm-dot: var(--color-green, #34c759);
+}
+.tm-stale-warn {
+	background: var(--color-yellow, #ff9500);
+	--tm-dot: var(--color-yellow, #ff9500);
+}
+.tm-stale-overdue {
+	background: var(--color-red, #ff3b30);
+	--tm-dot: var(--color-red, #ff3b30);
+}
+
+.tm-proj-name {
+	cursor: pointer;
+	font-weight: 500;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.tm-proj-name:hover {
+	color: var(--text-accent);
+}
+
+.tm-proj-meta {
+	margin-left: auto;
+	font-size: 0.78em;
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+}
+
+.tm-proj-log-btn {
+	cursor: pointer;
+	font-size: 0.78em;
+	padding: 3px 9px;
+	border-radius: var(--tm-r-sm);
+	transition: transform var(--tm-dur-fast) var(--tm-ease);
+}
+
+.tm-proj-log-btn:active {
+	transform: scale(0.94);
+}
+
+.tm-proj-row-ctx {
+	gap: 8px;
+}
+
+.tm-proj-row-ctx .tm-proj-name {
+	font-size: 0.9em;
+}
+
+/* Projects list (dashboard mode) — richer row with owners + last update. */
+.tm-proj-row-dash {
+	align-items: flex-start;
+	padding: 13px 0;
+}
+
+.tm-proj-row-dash .tm-proj-dot {
+	margin-top: 6px;
+}
+
+.tm-proj-main {
+	min-width: 0;
+	flex: 1 1 auto;
+}
+
+.tm-proj-titlerow {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+}
+
+.tm-proj-people {
+	font-size: 0.82em;
+	margin-top: 3px;
+}
+
+.tm-proj-person {
+	cursor: pointer;
+	color: var(--text-muted);
+}
+
+.tm-proj-person:hover {
+	color: var(--text-accent);
+}
+
+.tm-proj-update {
+	font-size: 0.82em;
+	margin-top: 5px;
+	color: var(--text-muted);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.tm-proj-side {
+	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-left: auto;
+}
+
+.tm-proj-bar {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 16px;
+}
+
+.tm-proj-bar .tm-proj-new {
+	margin: 0 0 0 auto;
+}
+
+/* Expandable project rows (context panel) */
+.tm-proj-details summary {
+	gap: 8px;
+}
+
+.tm-proj-summary-name {
+	font-weight: 500;
+	font-size: 0.9em;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.tm-proj-details .tm-proj-meta {
+	margin-left: auto;
+}
+
+.tm-proj-details .tm-meet-open {
+	margin-left: 0;
+}
+
+.tm-proj-more {
+	font-size: 0.78em;
+	margin-top: 4px;
+}
+
+/* ---- Projects: kanban board -------------------------------------------- */
+
+.tm-board-scroll {
+	overflow-x: auto;
+	padding-bottom: 10px;
+	margin: 0 -4px;
+	padding-left: 4px;
+	padding-right: 4px;
+}
+
+.tm-board {
+	display: grid;
+	grid-template-columns: 156px repeat(var(--tm-board-cols, 4), minmax(188px, 1fr));
+	gap: 10px;
+	min-width: fit-content;
+	align-items: stretch;
+}
+
+.tm-board-corner {
+	position: sticky;
+	left: 0;
+	z-index: 3;
+	background: var(--background-primary);
+}
+
+.tm-board-colhead {
+	font-size: 0.7em;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--text-muted);
+	padding: 6px 10px;
+}
+
+.tm-board-lanehead {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	padding: 10px 6px;
+	min-width: 0;
+	position: sticky;
+	left: 0;
+	z-index: 2;
+	background: var(--background-primary);
+}
+
+.tm-board-lanename {
+	cursor: pointer;
+	font-weight: 600;
+	font-size: 0.85em;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.tm-board-lanename:hover {
+	color: var(--text-accent);
+}
+
+.tm-board-cell {
+	background: color-mix(in srgb, var(--background-secondary) 55%, transparent);
+	border: 1px solid transparent;
+	border-radius: var(--tm-r-md);
+	padding: 7px;
+	min-height: 54px;
+	display: flex;
+	flex-direction: column;
+	gap: 7px;
+	transition: background var(--tm-dur-fast) var(--tm-ease),
+		border-color var(--tm-dur-fast) var(--tm-ease);
+}
+
+.tm-board-cell.is-drop-target {
+	border-color: var(--interactive-accent);
+	background: color-mix(in srgb, var(--interactive-accent) 10%, transparent);
+}
+
+.tm-board-card {
+	background: var(--background-primary);
+	border: 1px solid var(--tm-hairline);
+	border-radius: var(--tm-r-sm);
+	padding: 9px 11px;
+	cursor: grab;
+	box-shadow: var(--shadow-s, 0 1px 2px rgba(0, 0, 0, 0.06));
+	transition: transform var(--tm-dur-fast) var(--tm-ease),
+		box-shadow var(--tm-dur-fast) var(--tm-ease),
+		border-color var(--tm-dur-fast) var(--tm-ease), opacity var(--tm-dur-fast) var(--tm-ease);
+}
+
+.tm-board-card:hover {
+	border-color: color-mix(in srgb, var(--interactive-accent) 45%, var(--tm-hairline));
+	box-shadow: var(--shadow-l, 0 6px 18px rgba(0, 0, 0, 0.12));
+	transform: translateY(-1px);
+}
+
+.tm-board-card:active {
+	cursor: grabbing;
+}
+
+.tm-board-card.is-dragging {
+	opacity: 0.35;
+	box-shadow: none;
+}
+
+.tm-board-card-title {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	font-size: 0.85em;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+.tm-board-card-meta {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	margin-top: 7px;
+	font-size: 0.78em;
+	font-variant-numeric: tabular-nums;
+}
+
+.tm-board-card-meta .tm-proj-log-btn {
+	margin-left: auto;
+}
+
+/* Per-cell overflow toggle: caps a lane at 3 cards, expands the whole row. */
+.tm-board-more {
+	width: 100%;
+	font-size: 0.72em;
+	padding: 3px 8px;
+	border-radius: var(--tm-r-xs);
+	cursor: pointer;
+	color: var(--text-muted);
+	background: transparent;
+	box-shadow: none;
+	border: 1px dashed var(--tm-hairline);
+	transition: color var(--tm-dur-fast) var(--tm-ease),
+		background var(--tm-dur-fast) var(--tm-ease);
+}
+
+.tm-board-more:hover {
+	color: var(--text-normal);
+	background: var(--background-modifier-hover);
+}
+
+/* Action items mode */
+.tm-item-head a {
+	cursor: pointer;
+	color: inherit;
+}
+
+.tm-item-head a:hover {
+	color: var(--text-accent);
+}
+
+/* ---- Context panel ------------------------------------------------------ */
+
+.tm-context {
+	padding: 12px 14px 28px;
+	overflow-y: auto;
+}
+
+.tm-ctx-header {
+	padding-bottom: 12px;
+	border-bottom: 1px solid var(--tm-hairline);
+	margin-bottom: 6px;
+}
+
+.tm-ctx-headrow {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+.tm-ctx-name {
+	font-size: 1.25em;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+}
+
+.tm-ctx-pills {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+	margin-top: 8px;
+}
+
+.tm-discreet-btn {
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	padding: 5px;
+	border-radius: var(--tm-r-sm);
+	cursor: pointer;
+	color: var(--text-muted);
+	display: flex;
+	align-items: center;
+	transition: color var(--tm-dur-fast) var(--tm-ease),
+		background var(--tm-dur-fast) var(--tm-ease);
+}
+
+.tm-discreet-btn:hover {
+	color: var(--text-normal);
+	background: var(--background-modifier-hover);
+}
+
+.tm-ctx-link {
+	cursor: pointer;
+	font-size: 0.85em;
+	color: var(--text-accent);
+}
+
+.tm-ctx-section {
+	margin-top: 20px;
+}
+
+.tm-ctx-section h4 {
+	margin: 0 0 8px;
+	font-size: 0.72em;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--text-muted);
+}
+
+.tm-ctx-items {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.tm-ctx-item {
+	display: flex;
+	align-items: baseline;
+	gap: 9px;
+	padding: 4px 0;
+}
+
+.tm-ctx-item span {
+	cursor: pointer;
+}
+
+.tm-ctx-date {
+	margin-left: auto;
+	font-size: 0.75em;
+	color: var(--text-faint);
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+}
+
+/* ---- Person hub --------------------------------------------------------- */
+
+.tm-person {
+	padding: 0 24px 36px;
+	overflow-y: auto;
+	max-width: 920px;
+	margin: 0 auto;
+}
+
+.tm-person-header {
+	padding: 22px 0 16px;
+}
+
+.tm-person-titlerow {
+	display: flex;
+	align-items: center;
+	gap: 11px;
+}
+
+.tm-person-name {
+	margin: 0;
+	font-size: 1.9em;
+	font-weight: 700;
+	letter-spacing: -0.025em;
+}
+
+.tm-person-actions {
+	display: flex;
+	gap: 7px;
+	flex-wrap: wrap;
+	align-items: center;
+	margin-top: 16px;
+}
+
+.tm-tabs {
+	margin-bottom: 20px;
+}
+
+/* Stats — clean tiles, numbers lead. */
+.tm-stats {
+	display: flex;
+	gap: 9px;
+	flex-wrap: wrap;
+	margin: 4px 0 20px;
+}
+
+.tm-stat {
+	flex: 1 1 auto;
+	min-width: 84px;
+	background: var(--background-secondary);
+	border-radius: var(--tm-r-md);
+	padding: 12px 14px;
+	text-align: center;
+}
+
+.tm-stat-value {
+	font-size: 1.2em;
+	font-weight: 700;
+	letter-spacing: -0.01em;
+	font-variant-numeric: tabular-nums;
+}
+
+.tm-stat-label {
+	font-size: 0.7em;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--text-muted);
+	margin-top: 3px;
+}
+
+.tm-inline-add {
+	margin-top: 10px;
+	font-size: 0.85em;
+}
+
+/* Nudge — soft amber callout (full surround, never a side stripe). */
+.tm-nudge {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	background: var(--tm-tint-warn);
+	border: 1px solid color-mix(in srgb, var(--color-yellow, #ff9500) 30%, transparent);
+	border-radius: var(--tm-r-md);
+	padding: 12px 16px;
+	margin: 4px 0 16px;
+	font-size: 0.9em;
+	color: var(--tm-ink-warn);
+}
+
+.tm-nudge button {
+	cursor: pointer;
+	white-space: nowrap;
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	font-weight: 600;
+}
+
+/* ---- Overview (person hub briefing) ------------------------------------ */
+
+.tm-person {
+	container-type: inline-size;
+}
+
+/* Chapters: 1:1s / Projects / Performance, each under a named header. */
+.tm-ov-section {
+	margin-top: 26px;
+}
+
+.tm-ov-section:first-of-type {
+	margin-top: 6px;
+}
+
+.tm-ov-section-head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 10px;
+	margin-bottom: 10px;
+	padding-bottom: 6px;
+	border-bottom: 1px solid var(--tm-hairline);
+}
+
+/* No uppercase here: "1:1s" must not render as "1:1S". */
+.tm-ov-section-title {
+	font-size: 0.95em;
+	font-weight: 700;
+	letter-spacing: -0.01em;
+}
+
+.tm-ov-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+	gap: 12px;
+	align-items: stretch;
+}
+
+@container (max-width: 620px) {
+	.tm-ov-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+.tm-ov-span {
+	grid-column: 1 / -1;
+}
+
+.tm-ov-tile {
+	background: var(--background-secondary);
+	border-radius: var(--tm-r-lg);
+	padding: 14px 16px 16px;
+}
+
+.tm-ov-tile-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin-bottom: 10px;
+	min-height: 26px;
+}
+
+.tm-ov-tile-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+/* Tile action buttons — real button chrome, shared by Start 1:1 /
+   New project / New review. */
+.tm-tile-btn {
+	font-family: inherit;
+	font-size: 0.78em;
+	font-weight: 500;
+	padding: 4px 12px;
+	border-radius: var(--tm-r-sm);
+	cursor: pointer;
+	background: var(--interactive-normal);
+	color: var(--text-normal);
+	box-shadow: var(--shadow-s, 0 1px 2px rgba(0, 0, 0, 0.08));
+	transition: background var(--tm-dur-fast) var(--tm-ease),
+		transform var(--tm-dur-fast) var(--tm-ease);
+}
+
+.tm-tile-btn:hover {
+	background: var(--interactive-hover);
+}
+
+.tm-tile-btn:active {
+	transform: scale(0.96);
+}
+
+.tm-tile-btn.mod-primary {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	font-weight: 600;
+}
+
+.tm-tile-btn.mod-primary:hover {
+	background: var(--interactive-accent-hover);
+}
+
+.tm-ov-tile-foot {
+	margin-top: 12px;
+}
+
+/* Per-tab primary action (New 1:1 / New review), top-right of the tab. */
+.tm-tab-action {
+	display: flex;
+	justify-content: flex-end;
+	margin-bottom: 12px;
+}
+
+/* Top bar — back-to-dashboard (left) and quick Capture (right). */
+.tm-hub-topbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	padding: 10px 0 0;
+}
+
+.tm-topbar-capture {
+	font-size: 0.85em;
+}
+
+.tm-home-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	padding: 4px 11px 4px 6px;
+	border-radius: var(--tm-r-sm);
+	cursor: pointer;
+	color: var(--text-muted);
+	font-size: 0.85em;
+	font-weight: 500;
+	transition: color var(--tm-dur-fast) var(--tm-ease),
+		background var(--tm-dur-fast) var(--tm-ease);
+}
+
+.tm-home-btn:hover {
+	color: var(--text-normal);
+	background: var(--background-modifier-hover);
+}
+
+.tm-home-icon {
+	display: inline-flex;
+}
+
+.tm-home-icon svg {
+	width: 16px;
+	height: 16px;
+}
+
+/* People carousel — jump the hub between people. */
+.tm-carousel {
+	display: flex;
+	gap: 8px;
+	overflow-x: auto;
+	overflow-y: hidden;
+	padding: 16px 2px 10px;
+	margin: 0 -4px 4px;
+	padding-left: 4px;
+	padding-right: 4px;
+}
+
+.tm-cara-card {
+	flex: 0 0 auto;
+	width: 78px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 7px;
+	padding: 10px 6px;
+	border-radius: var(--tm-r-md);
+	cursor: pointer;
+	border: 1px solid transparent;
+	transition: background var(--tm-dur-fast) var(--tm-ease),
+		border-color var(--tm-dur-fast) var(--tm-ease),
+		transform var(--tm-dur-fast) var(--tm-ease);
+}
+
+.tm-cara-card:hover {
+	background: var(--background-modifier-hover);
+	transform: translateY(-1px);
+}
+
+.tm-cara-card.is-active {
+	background: color-mix(in srgb, var(--interactive-accent) 12%, transparent);
+	border-color: color-mix(in srgb, var(--interactive-accent) 40%, transparent);
+	cursor: default;
+}
+
+.tm-cara-card.is-active:hover {
+	transform: none;
+}
+
+.tm-cara-card .tm-avatar {
+	width: 40px;
+	height: 40px;
+	font-size: 0.82em;
+	box-shadow: inset 0 1px 1px hsl(var(--tm-hue, 210) 90% 97% / 0.6),
+		0 0 0 2px var(--background-primary),
+		0 0 0 3.5px var(--tm-health, transparent);
+}
+
+.theme-dark .tm-cara-card .tm-avatar {
+	box-shadow: inset 0 1px 1px hsl(var(--tm-hue, 210) 60% 60% / 0.25),
+		0 0 0 2px var(--background-primary),
+		0 0 0 3.5px var(--tm-health, transparent);
+}
+
+.tm-cara-name {
+	font-size: 0.72em;
+	text-align: center;
+	line-height: 1.2;
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: var(--text-muted);
+}
+
+.tm-cara-card.is-active .tm-cara-name {
+	color: var(--text-normal);
+	font-weight: 600;
+}
+
+.tm-ov-tile-head h4 {
+	margin: 0;
+	font-size: 0.72em;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--text-muted);
+}
+
+.tm-ov-sub {
+	font-size: 0.7em;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--text-faint);
+	margin: 14px 0 5px;
+}
+
+.tm-ov-due {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	flex-wrap: wrap;
+}
+
+.tm-ov-due-target {
+	font-size: 0.78em;
+}
+
+.tm-ov-empty {
+	color: var(--text-muted);
+	font-size: 0.85em;
+}
+
+/* Tiles sit on secondary: lift nested previews/rows onto primary. */
+.tm-ov-tile .tm-ctx-meeting-body {
+	background: var(--background-primary);
+}
+
+.tm-ov-tile .tm-ctx-meeting:first-of-type,
+.tm-ov-tile .tm-proj-row:first-of-type {
+	border-top: none;
+}
+
+.tm-ov-obs {
+	font-size: 0.85em;
+}
+
+/* Full-width project rows: the last update text breathes in the middle. */
+.tm-ov-proj-update {
+	flex: 1 1 auto;
+	min-width: 0;
+	font-size: 0.82em;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-align: left;
+}
+
+.tm-ov-tile .tm-ov-proj-update + .tm-proj-meta {
+	margin-left: 0;
+}
+
+.tm-ov-perf-row {
+	border-top: none;
+	padding-top: 2px;
+}
+
+.tm-ov-nudgeline {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	color: var(--tm-ink-warn);
+	font-size: 0.85em;
+	font-weight: 500;
+	margin-bottom: 8px;
+}
+
+/* Rhythm strip: one bar per gap between consecutive 1:1s. */
+.tm-rhythm {
+	display: flex;
+	align-items: flex-end;
+	gap: 4px;
+	min-height: 50px;
+	padding: 2px 0 0;
+}
+
+.tm-rhythm-bar {
+	width: 9px;
+	border-radius: 3px;
+	transition: filter var(--tm-dur-fast) var(--tm-ease);
+}
+
+.tm-rhythm-bar:hover {
+	filter: brightness(1.15);
+}
+
+.tm-rhythm-ok {
+	background: color-mix(in srgb, var(--color-green, #34c759) 60%, transparent);
+}
+
+.tm-rhythm-warn {
+	background: color-mix(in srgb, var(--color-yellow, #ff9500) 65%, transparent);
+}
+
+.tm-rhythm-over {
+	background: color-mix(in srgb, var(--color-red, #ff3b30) 60%, transparent);
+}
+
+/* The gap still running (last 1:1 → today): outlined, not yet a fact. */
+.tm-rhythm-now {
+	background: transparent;
+	border: 1.5px dashed var(--text-faint);
+}
+
+.tm-rhythm-caption {
+	font-size: 0.75em;
+	margin-top: 6px;
+	font-variant-numeric: tabular-nums;
+}
+
+/* Performance rows */
+.tm-perf-row {
+	display: flex;
+	align-items: baseline;
+	gap: 10px;
+	padding: 8px 0;
+	border-top: 1px solid var(--tm-hairline);
+}
+
+.tm-perf-period {
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+}
+
+.tm-perf-rating {
+	color: var(--text-muted);
+}
+
+.tm-perf-row .tm-ctx-link {
+	margin-left: auto;
+}
+
+/* ---- Hub / project blocks (rendered inside notes) ----------------------- */
+
+.tm-hub-block {
+	background: var(--background-secondary);
+	border: 1px solid var(--tm-hairline);
+	border-radius: var(--tm-r-lg);
+	padding: 16px 18px 18px;
+	margin: 6px 0 10px;
+	box-shadow: var(--shadow-s, 0 1px 2px rgba(0, 0, 0, 0.05));
+}
+
+.tm-hub-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	flex-wrap: wrap;
+	padding-bottom: 12px;
+	border-bottom: 1px solid var(--tm-hairline);
+}
+
+.tm-hub-headleft {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.tm-hub-block .tm-person-actions {
+	margin-top: 0;
+}
+
+/* Cards sit on --background-secondary here, so lift them onto primary. */
+.tm-hub-block .tm-stat,
+.tm-hub-block .tm-ctx-meeting-body {
+	background: var(--background-primary);
+}
+
+.tm-hub-block .tm-ctx-section:first-of-type {
+	margin-top: 12px;
+}
+
+.tm-hub-hint {
+	color: var(--text-muted);
+	font-size: 0.85em;
+	line-height: 1.5;
+}
+
+/* Owner chips (project block) */
+.tm-projblk-people {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin-top: 14px;
+	font-size: 0.88em;
+}
+
+.tm-projblk-person {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	padding: 4px 12px 4px 5px;
+	border: 1px solid var(--tm-hairline);
+	border-radius: var(--tm-r-pill);
+	background: var(--background-primary);
+	cursor: pointer;
+	transition: border-color var(--tm-dur-fast) var(--tm-ease),
+		transform var(--tm-dur-fast) var(--tm-ease);
+}
+
+.tm-projblk-person:hover {
+	border-color: color-mix(in srgb, var(--interactive-accent) 50%, var(--tm-hairline));
+	transform: translateY(-1px);
+}
+
+/* ---- Modals ------------------------------------------------------------- */
+
+.tm-prompt-textarea {
+	width: 100%;
+	resize: vertical;
+	font-family: inherit;
+}
+
+/* Capture modal — single-surface flow */
+.tm-capture-modal {
+	min-width: min(468px, 90vw);
+}
+
+.tm-dest-title {
+	margin: 0 0 14px;
+	font-size: 1.15em;
+	font-weight: 700;
+	letter-spacing: -0.01em;
+}
+
+.tm-cap-types {
+	display: flex;
+	gap: 7px;
+	margin-bottom: 4px;
+}
+
+.tm-cap-type {
+	flex: 1 1 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 7px;
+	padding: 10px 6px;
+	border: 1px solid var(--tm-hairline);
+	border-radius: var(--tm-r-md);
+	background: transparent;
+	box-shadow: none;
+	cursor: pointer;
+	font-size: 0.9em;
+	white-space: nowrap;
+	transition: background var(--tm-dur-fast) var(--tm-ease),
+		border-color var(--tm-dur-fast) var(--tm-ease),
+		transform var(--tm-dur-fast) var(--tm-ease);
+}
+
+.tm-cap-type:hover {
+	background: var(--background-modifier-hover);
+}
+
+.tm-cap-type:active {
+	transform: scale(0.97);
+}
+
+.tm-cap-type.is-active {
+	border-color: var(--interactive-accent);
+	background: color-mix(in srgb, var(--interactive-accent) 12%, transparent);
+	font-weight: 600;
+}
+
+.tm-cap-type.is-disabled {
+	opacity: 0.4;
+	cursor: default;
+}
+
+.tm-cap-row {
+	margin-top: 14px;
+}
+
+.tm-cap-label {
+	font-size: 0.7em;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--text-muted);
+	margin-bottom: 5px;
+}
+
+.tm-cap-input,
+.tm-cap-select,
+.tm-cap-textarea {
+	width: 100%;
+}
+
+.tm-cap-textarea {
+	resize: vertical;
+	font-family: inherit;
+}
+
+.tm-cap-chips {
+	margin: 0 0 6px;
+}
+
+.tm-chip-x {
+	cursor: pointer;
+	color: var(--text-faint);
+	font-size: 1.1em;
+	line-height: 1;
+	padding-left: 2px;
+	transition: color var(--tm-dur-fast) var(--tm-ease);
+}
+
+.tm-chip-x:hover {
+	color: var(--tm-ink-over);
+}
+
+.tm-cap-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 18px;
+}
+
+.tm-cap-hint {
+	font-size: 0.78em;
+}
+
+.tm-cap-footer .mod-cta {
+	font-weight: 600;
+}
+
+/* Destination modal (keyboard router) */
+.tm-dest-row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 11px 13px;
+	border: 1px solid var(--tm-hairline);
+	border-radius: var(--tm-r-md);
+	margin-bottom: 7px;
+	cursor: pointer;
+	transition: background var(--tm-dur-fast) var(--tm-ease),
+		border-color var(--tm-dur-fast) var(--tm-ease);
+}
+
+.tm-dest-row.is-highlighted {
+	border-color: var(--interactive-accent);
+	background: color-mix(in srgb, var(--interactive-accent) 10%, transparent);
+}
+
+.tm-dest-disabled {
+	opacity: 0.45;
+	cursor: default;
+}
+
+.tm-dest-key {
+	flex: 0 0 auto;
+	font-size: 0.8em;
+	background: var(--tm-track);
+	border-radius: var(--tm-r-xs);
+	padding: 2px 8px;
+	color: var(--text-muted);
+	font-variant-numeric: tabular-nums;
+}
+
+.tm-dest-icon {
+	font-size: 1.15em;
+}
+
+.tm-dest-label {
+	min-width: 0;
+}
+
+.tm-dest-hint {
+	font-size: 0.78em;
+	color: var(--text-faint);
+}
+
+/* Delete person */
+.tm-del-list {
+	margin: 6px 0 12px;
+	padding-left: 20px;
+	font-size: 0.9em;
+	line-height: 1.8;
+}
+
+.tm-del-hint {
+	font-size: 0.8em;
+	margin: 0;
+	line-height: 1.5;
+}
+
+.tm-del-actions {
+	justify-content: flex-end;
+	flex-wrap: wrap;
+}
+
+.tm-del-actions button {
+	cursor: pointer;
+}
+
+/* ---- Motion: honor reduced-motion --------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+	.tm-dashboard *,
+	.tm-person *,
+	.tm-context *,
+	.tm-hub-block *,
+	.tm-capture-modal *,
+	.tm-dest-modal * {
+		transition-duration: 0.01ms !important;
+		animation-duration: 0.01ms !important;
+	}
+
+	.tm-card:hover,
+	.tm-board-card:hover,
+	.tm-projblk-person:hover {
+		transform: none;
+	}
+}
