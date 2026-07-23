@@ -467,8 +467,10 @@
 	opacity: 0.5;
 }
 
-.tm-card-note:hover {
-	opacity: 1 !important;
+/* Higher specificity than ".tm-card:hover .tm-card-note", no !important
+   needed: hovering the icon means the card is also :hover (it's nested). */
+.tm-card:hover .tm-card-note:hover {
+	opacity: 1;
 }
 
 .tm-card-top {
@@ -1822,14 +1824,17 @@
 /* ---- Motion: honor reduced-motion --------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
-	.tm-dashboard *,
-	.tm-person *,
-	.tm-context *,
-	.tm-hub-block *,
-	.tm-capture-modal *,
-	.tm-dest-modal * {
-		transition-duration: 0.01ms !important;
-		animation-duration: 0.01ms !important;
+	/* Every transition in this file reads --tm-dur/--tm-dur-fast, so
+	   collapsing them here turns off motion without !important or a
+	   universal selector — normal cascade, just near-zero durations. */
+	.tm-dashboard,
+	.tm-person,
+	.tm-context,
+	.tm-hub-block,
+	.tm-capture-modal,
+	.tm-dest-modal {
+		--tm-dur: 0.01ms;
+		--tm-dur-fast: 0.01ms;
 	}
 
 	.tm-card:hover,

@@ -1,7 +1,7 @@
 {
   "name": "team-manager",
-  "version": "0.2.0",
-  "description": "Manage your team from Obsidian.",
+  "version": "0.2.1",
+  "description": "Manage your team from Obsidian: people, 1:1s, projects, performance notes and a universal quick capture.",
   "main": "main.js",
   "scripts": {
     "dev": "node esbuild.config.mjs",

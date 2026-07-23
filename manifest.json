@@ -1,9 +1,9 @@
 {
   "id": "team-manager",
   "name": "Team Manager",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "minAppVersion": "1.6.6",
-  "description": "Manage your team from Obsidian: people cards with cadence health, 1:1s with agenda buffers, projects with logs, performance observations, and a universal quick capture.",
+  "description": "Manage your team: people cards with cadence health, 1:1s with agenda buffers, projects with logs, performance observations, and a universal quick capture.",
   "author": "André",
   "authorUrl": "https://github.com/andyguy-dot",
   "isDesktopOnly": false
